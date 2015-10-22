@@ -149,7 +149,8 @@ namespace detail {
          else
          {
             vector<string> seeds = {
-               "128.199.131.4:3777" // cube 
+               "128.199.131.4:3777", // cube 
+               "178.62.91.161:3777"  
             };
             for( const string& endpoint_string : seeds )
             {
