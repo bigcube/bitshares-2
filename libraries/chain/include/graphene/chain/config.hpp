@@ -20,7 +20,7 @@
  */
 #pragma once
 
-#define GRAPHENE_SYMBOL "BTS"
+#define GRAPHENE_SYMBOL "CORE"
 #define GRAPHENE_ADDRESS_PREFIX "BTS"
 
 #define GRAPHENE_MIN_ACCOUNT_NAME_LENGTH 1
@@ -133,14 +133,14 @@
 #define GRAPHENE_DEFAULT_WITNESS_PAY_VESTING_SECONDS      (60*60*24)
 #define GRAPHENE_DEFAULT_WORKER_BUDGET_PER_DAY            (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(500) * 1000 )
 
-#define GRAPHENE_DEFAULT_MINIMUM_FEEDS                       7
+#define GRAPHENE_DEFAULT_MINIMUM_FEEDS                       0
 
 #define GRAPHENE_MAX_INTEREST_APR                            uint16_t( 10000 )
 
 #define GRAPHENE_RECENTLY_MISSED_COUNT_INCREMENT             4
 #define GRAPHENE_RECENTLY_MISSED_COUNT_DECREMENT             3
 
-#define GRAPHENE_CURRENT_DB_VERSION                          "BTS2.2"
+#define GRAPHENE_CURRENT_DB_VERSION                          "BTS3.0"
 
 #define GRAPHENE_IRREVERSIBLE_THRESHOLD                      (70 * GRAPHENE_1_PERCENT)
 

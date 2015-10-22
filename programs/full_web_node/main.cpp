@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 {
    fc::thread::current().set_name("main");
    QGuiApplication app(argc, argv);
-   app.setApplicationName("BitShares 2");
+   app.setApplicationName("BitShares 3");
    app.setApplicationDisplayName(app.applicationName());
    app.setOrganizationDomain("bitshares.org");
    app.setOrganizationName("BitShares");

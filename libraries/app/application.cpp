@@ -98,7 +98,7 @@ namespace detail {
       initial_state.initial_balances.push_back({nathan_key.get_public_key(),
                                                 GRAPHENE_SYMBOL,
                                                 GRAPHENE_MAX_SHARE_SUPPLY});
-      initial_state.initial_chain_id = fc::sha256::hash( "BOGUS" );
+      initial_state.initial_chain_id = fc::sha256::hash( "CUBE" );
 
       return initial_state;
    }
@@ -149,20 +149,7 @@ namespace detail {
          else
          {
             vector<string> seeds = {
-               "faucet.bitshares.org:1776",
-               "bitshares.openledger.info:1776",
-               "blocktrades.us:1776",
-               "seed04.bitsharesnodes.com:1776", // thom
-               "seed05.bitsharesnodes.com:1776", // thom
-               "seed06.bitsharesnodes.com:1776", // thom
-               "seed07.bitsharesnodes.com:1776", // thom
-               "128.199.131.4:1777", // cube 
-               "54.85.252.77:39705", // lafona
-               "104.236.144.84:1777", // puppies
-               "40.127.190.171:1777", // betax
-               "185.25.22.21:1776", // liondani (greece)
-               "23.95.43.126:50696", // iHashFury
-               "109.73.172.144:50696" // iHashFury
+               "128.199.131.4:3777" // cube 
             };
             for( const string& endpoint_string : seeds )
             {
@@ -313,7 +300,7 @@ namespace detail {
                if( modified_genesis )
                {
                   std::cerr << "WARNING:  GENESIS WAS MODIFIED, YOUR CHAIN ID MAY BE DIFFERENT\n";
-                  genesis_str += "BOGUS";
+                  genesis_str += "CUBE";
                   genesis.initial_chain_id = fc::sha256::hash( genesis_str );
                }
                else
