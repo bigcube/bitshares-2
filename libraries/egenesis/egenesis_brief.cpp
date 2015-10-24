@@ -42,7 +42,7 @@ using namespace graphene::chain;
 
 chain_id_type get_egenesis_chain_id()
 {
-   return chain_id_type( "62c22c52f903783c79e0837917a30230709b3a94226818648e2fc6caf4e5f5d3" );
+   return chain_id_type( "10da4d59a01e0199f8cd76c3ca51413921d71a01f6ea0b914fc0bfbf763437fe" );
 }
 
 void compute_egenesis_json( std::string& result )
@@ -52,7 +52,7 @@ void compute_egenesis_json( std::string& result )
 
 fc::sha256 get_egenesis_json_hash()
 {
-   return fc::sha256( "62c22c52f903783c79e0837917a30230709b3a94226818648e2fc6caf4e5f5d3" );
+   return fc::sha256( "10da4d59a01e0199f8cd76c3ca51413921d71a01f6ea0b914fc0bfbf763437fe" );
 }
 
 } }
