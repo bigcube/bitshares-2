@@ -21,6 +21,7 @@
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/hardfork.hpp>
 #include <fc/uint128.hpp>
 
 namespace graphene { namespace chain {
@@ -38,12 +39,32 @@ share_type cut_fee(share_type a, uint16_t p)
    return r.to_uint64();
 }
 
-bool account_object::is_authorized_asset(const asset_object& asset_obj) const {
+bool account_object::is_authorized_asset(const asset_object& asset_obj, const database& d) const
+{
+   if( d.head_block_time() > HARDFORK_416_TIME )
+   {
+      if( !(asset_obj.options.flags & white_list) )
+         return true;
+   }
+
    for( const auto id : blacklisting_accounts )
-      if( asset_obj.options.blacklist_authorities.find(id) != asset_obj.options.blacklist_authorities.end() ) return false;
+   {
+      if( asset_obj.options.blacklist_authorities.find(id) != asset_obj.options.blacklist_authorities.end() )
+         return false;
+   }
+
+   if( d.head_block_time() > HARDFORK_415_TIME )
+   {
+      if( asset_obj.options.whitelist_authorities.size() == 0 )
+         return true;
+   }
 
    for( const auto id : whitelisting_accounts )
-      if( asset_obj.options.whitelist_authorities.find(id) != asset_obj.options.whitelist_authorities.end() ) return true;
+   {
+      if( asset_obj.options.whitelist_authorities.find(id) != asset_obj.options.whitelist_authorities.end() )
+         return true;
+   }
+
    return false;
 }
 
@@ -52,7 +73,6 @@ void account_balance_object::adjust_balance(const asset& delta)
    assert(delta.asset_id == asset_type);
    balance += delta.amount;
 }
-
 
 void account_statistics_object::process_fees(const account_object& a, database& d) const
 {
@@ -128,6 +148,8 @@ set<account_id_type> account_member_index::get_account_members(const account_obj
    set<account_id_type> result;
    for( auto auth : a.owner.account_auths )
       result.insert(auth.first);
+   for( auto auth : a.active.account_auths )
+      result.insert(auth.first);
    return result;
 }
 set<public_key_type> account_member_index::get_key_members(const account_object& a)const
@@ -135,6 +157,9 @@ set<public_key_type> account_member_index::get_key_members(const account_object&
    set<public_key_type> result;
    for( auto auth : a.owner.key_auths )
       result.insert(auth.first);
+   for( auto auth : a.active.key_auths )
+      result.insert(auth.first);
+   result.insert( a.options.memo_key );
    return result;
 }
 set<address> account_member_index::get_address_members(const account_object& a)const
@@ -142,6 +167,9 @@ set<address> account_member_index::get_address_members(const account_object& a)c
    set<address> result;
    for( auto auth : a.owner.address_auths )
       result.insert(auth.first);
+   for( auto auth : a.active.address_auths )
+      result.insert(auth.first);
+   result.insert( a.options.memo_key );
    return result;
 }
 

@@ -140,7 +140,11 @@
 #define GRAPHENE_RECENTLY_MISSED_COUNT_INCREMENT             4
 #define GRAPHENE_RECENTLY_MISSED_COUNT_DECREMENT             3
 
+<<<<<<< HEAD
 #define GRAPHENE_CURRENT_DB_VERSION                          "BTS3.0"
+=======
+#define GRAPHENE_CURRENT_DB_VERSION                          "BTS2.3"
+>>>>>>> upstream/bitshares
 
 #define GRAPHENE_IRREVERSIBLE_THRESHOLD                      (70 * GRAPHENE_1_PERCENT)
 
