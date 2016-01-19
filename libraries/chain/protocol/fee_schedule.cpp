@@ -81,6 +81,7 @@ namespace graphene { namespace chain {
       {
          return op.calculate_fee( param.get<typename OpType::fee_parameters_type>() ).value;
       }
+
    };
 
    struct set_fee_visitor
@@ -116,13 +117,47 @@ namespace graphene { namespace chain {
       this->scale = 0;
    }
 
-   asset fee_schedule::calculate_fee( const operation& op, const price& core_exchange_rate )const
+   fee_parameters fee_schedule::find_op_fee_parameters( const operation& op )const
    {
-      //idump( (op)(core_exchange_rate) );
       fee_parameters params; params.set_which(op.which());
       auto itr = parameters.find(params);
       if( itr != parameters.end() ) params = *itr;
+      return params;
+   }
+
+   asset fee_schedule::calculate_fee( const operation& op, const price& core_exchange_rate )const
+   {
+      //idump( (op)(core_exchange_rate) );
+      const fee_parameters& params = find_op_fee_parameters( op );
       auto base_value = op.visit( calc_fee_visitor( params ) );
+      return scale_and_convert_fee( base_value, core_exchange_rate );
+   }
+
+   asset fee_schedule::calculate_fee( const operation& op, const asset_object& asset_obj, const price& core_exchange_rate )const
+   {
+      if( op.which() != operation::tag<transfer_operation>::value
+            && op.which() != operation::tag<transfer_v2_operation>::value )
+         return calculate_fee( op, core_exchange_rate );
+
+      //idump( (op)(core_exchange_rate) );
+      if( op.which() == operation::tag<transfer_v2_operation>::value )
+      {
+         const fee_parameters& params = find_op_fee_parameters( op );
+         auto& transfer_v2_op = op.get<transfer_v2_operation>();
+         auto& transfer_v2_fee_param = params.get<transfer_v2_operation::fee_parameters_type>();
+         auto base_value = transfer_v2_op.calculate_fee( transfer_v2_fee_param, asset_obj ).value;
+         return scale_and_convert_fee( base_value, core_exchange_rate );
+      }
+
+      const fee_parameters& params = find_op_fee_parameters( op );
+      auto& transfer_op = op.get<transfer_operation>();
+      auto& transfer_fee_param = params.get<transfer_operation::fee_parameters_type>();
+      auto base_value = transfer_op.calculate_fee( transfer_fee_param, asset_obj ).value;
+      return scale_and_convert_fee( base_value, core_exchange_rate );
+   }
+
+   asset fee_schedule::scale_and_convert_fee( const uint64_t base_value, const price& core_exchange_rate )const
+   {
       auto scaled = fc::uint128(base_value) * scale;
       scaled /= GRAPHENE_100_PERCENT;
       FC_ASSERT( scaled <= GRAPHENE_MAX_SHARE_SUPPLY );
@@ -145,6 +180,28 @@ namespace graphene { namespace chain {
       {
          op.visit( set_fee_visitor( f_max ) );
          auto f2 = calculate_fee( op, core_exchange_rate );
+         if( f == f2 )
+            break;
+         f_max = std::max( f_max, f2 );
+         f = f2;
+         if( i == 0 )
+         {
+            // no need for warnings on later iterations
+            wlog( "set_fee requires multiple iterations to stabilize with core_exchange_rate ${p} on operation ${op}",
+               ("p", core_exchange_rate) ("op", op) );
+         }
+      }
+      return f_max;
+   }
+
+   asset fee_schedule::set_fee( operation& op, const asset_object& asset, const price& core_exchange_rate )const
+   {
+      auto f = calculate_fee( op, asset, core_exchange_rate );
+      auto f_max = f;
+      for( int i=0; i<MAX_FEE_STABILIZATION_ITERATION; i++ )
+      {
+         op.visit( set_fee_visitor( f_max ) );
+         auto f2 = calculate_fee( op, asset, core_exchange_rate );
          if( f == f2 )
             break;
          f_max = std::max( f_max, f2 );
